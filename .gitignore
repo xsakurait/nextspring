@@ -1,0 +1,17 @@
+.env
+.env.local
+.env.*.local
+node_modules/
+target/
+.next/
+out/
+build/
+dist/
+*.log
+.DS_Store
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*~

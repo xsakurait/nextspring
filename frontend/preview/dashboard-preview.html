@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube チャンネルマネージャー - ダッシュボード</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #111827;
+      }
+
+      @keyframes scaleIn {
+        from {
+          transform: scale(0.95);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .animate-scale-in {
+        animation: scaleIn 0.2s ease-out;
+      }
+
+      .video-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      }
+
+      .popup {
+        display: none;
+        position: absolute;
+        z-index: 50;
+      }
+
+      .video-card:hover .popup {
+        display: block;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 min-h-screen">
+    <!-- ヘッダー -->
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+          <h1 class="text-2xl font-bold text-white">
+            📺 YouTube チャンネルマネージャー
+          </h1>
+
+          <div class="flex items-center gap-4">
+            <button
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+            >
+              🔄 動画を同期
+            </button>
+
+            <button
+              class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            >
+              ログアウト
+            </button>
+          </div>
+        </div>
+
+        <!-- タブ -->
+        <div class="flex gap-4 mt-4">
+          <button
+            id="videosTab"
+            class="px-4 py-2 rounded-lg transition-colors bg-blue-600 text-white"
+          >
+            新着動画
+          </button>
+          <button
+            id="channelsTab"
+            class="px-4 py-2 rounded-lg transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600"
+          >
+            チャンネル
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+      <div class="flex gap-8">
+        <!-- サイドバー -->
+        <aside class="w-64 flex-shrink-0">
+          <div class="bg-gray-800 rounded-lg p-4 sticky top-24">
+            <h2 class="text-white font-semibold mb-4">📁 カテゴリ</h2>
+
+            <button
+              class="w-full text-left px-3 py-2 rounded-lg mb-2 transition-colors bg-blue-600 text-white"
+            >
+              すべて
+            </button>
+
+            <button
+              class="w-full text-left px-3 py-2 rounded-lg mb-2 transition-colors text-gray-300 hover:bg-gray-700"
+            >
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                <span>テクノロジー</span>
+              </div>
+            </button>
+
+            <button
+              class="w-full text-left px-3 py-2 rounded-lg mb-2 transition-colors text-gray-300 hover:bg-gray-700"
+            >
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <span>エンターテイメント</span>
+              </div>
+            </button>
+
+            <button
+              class="w-full text-left px-3 py-2 rounded-lg mb-2 transition-colors text-gray-300 hover:bg-gray-700"
+            >
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-purple-500"></div>
+                <span>教育</span>
+              </div>
+            </button>
+          </div>
+        </aside>
+
+        <!-- メインコンテンツ -->
+        <main class="flex-1">
+          <!-- フィルター -->
+          <div class="bg-gray-800 rounded-lg p-4 mb-6">
+            <div class="flex items-center gap-4">
+              <div>
+                <label class="text-gray-400 text-sm block mb-2">
+                  📅 期間
+                </label>
+                <select class="bg-gray-700 text-white px-4 py-2 rounded-lg">
+                  <option value="1">1日</option>
+                  <option value="3">3日</option>
+                  <option value="7" selected>7日</option>
+                  <option value="14">14日</option>
+                  <option value="30">30日</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-gray-400 text-sm block mb-2">
+                  🔽 並び替え
+                </label>
+                <select class="bg-gray-700 text-white px-4 py-2 rounded-lg">
+                  <option value="publishedAt" selected>公開日</option>
+                  <option value="viewCount">再生回数</option>
+                  <option value="likeCount">高評価数</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 動画グリッド -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 動画カード1 -->
+            <div
+              class="relative group video-card transition-all duration-300 cursor-pointer"
+            >
+              <div class="bg-gray-800 rounded-lg overflow-hidden">
+                <!-- サムネイル -->
+                <div class="relative aspect-video bg-gray-700">
+                  <div
+                    class="absolute inset-0 flex items-center justify-center text-gray-500"
+                  >
+                    🎬 サムネイル
+                  </div>
+                  <!-- 再生時間 -->
+                  <div
+                    class="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-2 py-1 rounded"
+                  >
+                    12:34
+                  </div>
+                </div>
+
+                <!-- 動画情報 -->
+                <div class="p-4">
+                  <h3 class="text-white font-semibold line-clamp-2 mb-2">
+                    Next.js 14の新機能を完全解説！Server Componentsの使い方
+                  </h3>
+
+                  <p class="text-gray-400 text-sm mb-2">テックチャンネル</p>
+
+                  <div class="flex items-center gap-4 text-gray-400 text-sm">
+                    <span>👁️ 12.5K 回視聴</span>
+                    <span>🕒 2日前</span>
+                  </div>
+
+                  <div
+                    class="flex items-center gap-4 mt-2 text-gray-400 text-sm"
+                  >
+                    <span>👍 1.2K</span>
+                    <span>💬 234</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ホバーポップアップ -->
+              <div
+                class="popup left-full ml-4 top-0 w-96 bg-gray-900 rounded-lg shadow-2xl p-6 animate-scale-in"
+              >
+                <div class="space-y-4">
+                  <h3 class="text-white font-bold text-lg">
+                    Next.js 14の新機能を完全解説！
+                  </h3>
+
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center"
+                    >
+                      📺
+                    </div>
+                    <div>
+                      <p class="text-white font-semibold">テックチャンネル</p>
+                      <p class="text-gray-400 text-sm">125K 登録者</p>
+                    </div>
+                  </div>
+
+                  <p class="text-gray-300 text-sm line-clamp-4">
+                    Next.js 14で追加された新機能について詳しく解説します。Server
+                    ComponentsやServer Actionsの実践的な使い方を学びましょう。
+                  </p>
+
+                  <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p class="text-gray-400">視聴回数</p>
+                      <p class="text-white font-semibold">12.5K</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-400">高評価</p>
+                      <p class="text-white font-semibold">1.2K</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-400">コメント</p>
+                      <p class="text-white font-semibold">234</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-400">公開日</p>
+                      <p class="text-white font-semibold">2日前</p>
+                    </div>
+                  </div>
+
+                  <button
+                    class="w-full bg-red-600 hover:bg-red-700 text-white text-center py-2 rounded-lg transition-colors"
+                  >
+                    YouTubeで視聴
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 動画カード2 -->
+            <div
+              class="relative group video-card transition-all duration-300 cursor-pointer"
+            >
+              <div class="bg-gray-800 rounded-lg overflow-hidden">
+                <div class="relative aspect-video bg-gray-700">
+                  <div
+                    class="absolute inset-0 flex items-center justify-center text-gray-500"
+                  >
+                    🎬 サムネイル
+                  </div>
+                  <div
+                    class="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-2 py-1 rounded"
+                  >
+                    8:45
+                  </div>
+                </div>
+
+                <div class="p-4">
+                  <h3 class="text-white font-semibold line-clamp-2 mb-2">
+                    Spring Boot 3.2の新機能とパフォーマンス改善
+                  </h3>
+
+                  <p class="text-gray-400 text-sm mb-2">Javaプログラミング</p>
+
+                  <div class="flex items-center gap-4 text-gray-400 text-sm">
+                    <span>👁️ 8.3K 回視聴</span>
+                    <span>🕒 1日前</span>
+                  </div>
+
+                  <div
+                    class="flex items-center gap-4 mt-2 text-gray-400 text-sm"
+                  >
+                    <span>👍 892</span>
+                    <span>💬 156</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 動画カード3 -->
+            <div
+              class="relative group video-card transition-all duration-300 cursor-pointer"
+            >
+              <div class="bg-gray-800 rounded-lg overflow-hidden">
+                <div class="relative aspect-video bg-gray-700">
+                  <div
+                    class="absolute inset-0 flex items-center justify-center text-gray-500"
+                  >
+                    🎬 サムネイル
+                  </div>
+                  <div
+                    class="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-2 py-1 rounded"
+                  >
+                    15:20
+                  </div>
+                </div>
+
+                <div class="p-4">
+                  <h3 class="text-white font-semibold line-clamp-2 mb-2">
+                    Kubernetesで始めるマイクロサービス開発
+                  </h3>
+
+                  <p class="text-gray-400 text-sm mb-2">DevOpsチャンネル</p>
+
+                  <div class="flex items-center gap-4 text-gray-400 text-sm">
+                    <span>👁️ 15.2K 回視聴</span>
+                    <span>🕒 3日前</span>
+                  </div>
+
+                  <div
+                    class="flex items-center gap-4 mt-2 text-gray-400 text-sm"
+                  >
+                    <span>👍 1.8K</span>
+                    <span>💬 342</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const videosTab = document.getElementById('videosTab');
+      const channelsTab = document.getElementById('channelsTab');
+
+      videosTab.addEventListener('click', () => {
+        videosTab.className =
+          'px-4 py-2 rounded-lg transition-colors bg-blue-600 text-white';
+        channelsTab.className =
+          'px-4 py-2 rounded-lg transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600';
+      });
+
+      channelsTab.addEventListener('click', () => {
+        videosTab.className =
+          'px-4 py-2 rounded-lg transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600';
+        channelsTab.className =
+          'px-4 py-2 rounded-lg transition-colors bg-blue-600 text-white';
+        alert('チャンネルビューに切り替え（デモ）');
+      });
+    </script>
+  </body>
+</html>

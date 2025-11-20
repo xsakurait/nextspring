@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube チャンネルマネージャー - ログイン</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+
+      .gradient-bg {
+        background: linear-gradient(
+          135deg,
+          #1a1a2e 0%,
+          #16213e 50%,
+          #0f3460 100%
+        );
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-out;
+      }
+    </style>
+  </head>
+  <body class="gradient-bg min-h-screen">
+    <div class="min-h-screen flex items-center justify-center px-4 py-12">
+      <div class="max-w-md w-full animate-fade-in">
+        <!-- ロゴ -->
+        <div class="text-center mb-8">
+          <h1 class="text-4xl font-bold text-white mb-2">
+            📺 YouTube チャンネルマネージャー
+          </h1>
+          <p class="text-gray-300 text-lg">
+            チャンネル整理し、新規動画を簡単に発見
+          </p>
+        </div>
+
+        <!-- フォーム -->
+        <div class="bg-gray-800 rounded-2xl shadow-2xl p-8">
+          <!-- タブ -->
+          <div class="flex gap-4 mb-6">
+            <button
+              id="loginTab"
+              class="flex-1 py-3 rounded-lg font-semibold transition-all bg-blue-600 text-white"
+            >
+              ログイン
+            </button>
+            <button
+              id="signupTab"
+              class="flex-1 py-3 rounded-lg font-semibold transition-all bg-gray-700 text-gray-300 hover:bg-gray-600"
+            >
+              新規登録
+            </button>
+          </div>
+
+          <!-- ログインフォーム -->
+          <form id="loginForm" class="space-y-4">
+            <div>
+              <label class="block text-gray-300 text-sm font-medium mb-2">
+                ユーザー名
+              </label>
+              <input
+                type="text"
+                id="username"
+                class="w-full px-4 py-3 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                placeholder="ユーザー名を入力"
+                required
+              />
+            </div>
+
+            <div id="emailField" class="hidden">
+              <label class="block text-gray-300 text-sm font-medium mb-2">
+                メールアドレス
+              </label>
+              <input
+                type="email"
+                id="email"
+                class="w-full px-4 py-3 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                placeholder="email@example.com"
+              />
+            </div>
+
+            <div>
+              <label class="block text-gray-300 text-sm font-medium mb-2">
+                パスワード
+              </label>
+              <input
+                type="password"
+                id="password"
+                class="w-full px-4 py-3 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                placeholder="パスワードを入力"
+                required
+              />
+            </div>
+
+            <div
+              id="errorMessage"
+              class="hidden bg-red-500 bg-opacity-20 border border-red-500 text-red-200 px-4 py-3 rounded-lg"
+            >
+              エラーメッセージがここに表示されます
+            </div>
+
+            <button
+              type="submit"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all transform hover:scale-105"
+            >
+              <span id="submitText">ログイン</span>
+            </button>
+          </form>
+
+          <div class="mt-6 text-center text-gray-400 text-sm">
+            <p>
+              <span id="switchText">アカウントをお持ちでない方は</span>
+              <button
+                id="switchButton"
+                class="text-blue-400 hover:text-blue-300 ml-1 font-medium"
+              >
+                新規登録
+              </button>
+            </p>
+          </div>
+        </div>
+
+        <!-- 機能紹介 -->
+        <div class="mt-8 grid grid-cols-3 gap-4 text-center">
+          <div
+            class="bg-gray-800 bg-opacity-50 rounded-lg p-4 hover:bg-opacity-70 transition-all"
+          >
+            <div class="text-4xl mb-2">📺</div>
+            <p class="text-gray-300 text-sm font-medium">チャンネル整理</p>
+          </div>
+          <div
+            class="bg-gray-800 bg-opacity-50 rounded-lg p-4 hover:bg-opacity-70 transition-all"
+          >
+            <div class="text-4xl mb-2">🎬</div>
+            <p class="text-gray-300 text-sm font-medium">新着動画</p>
+          </div>
+          <div
+            class="bg-gray-800 bg-opacity-50 rounded-lg p-4 hover:bg-opacity-70 transition-all"
+          >
+            <div class="text-4xl mb-2">🔍</div>
+            <p class="text-gray-300 text-sm font-medium">ソート機能</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let isLogin = true;
+
+      const loginTab = document.getElementById('loginTab');
+      const signupTab = document.getElementById('signupTab');
+      const emailField = document.getElementById('emailField');
+      const submitText = document.getElementById('submitText');
+      const switchText = document.getElementById('switchText');
+      const switchButton = document.getElementById('switchButton');
+
+      function toggleMode() {
+        isLogin = !isLogin;
+
+        if (isLogin) {
+          loginTab.className =
+            'flex-1 py-3 rounded-lg font-semibold transition-all bg-blue-600 text-white';
+          signupTab.className =
+            'flex-1 py-3 rounded-lg font-semibold transition-all bg-gray-700 text-gray-300 hover:bg-gray-600';
+          emailField.classList.add('hidden');
+          submitText.textContent = 'ログイン';
+          switchText.textContent = 'アカウントをお持ちでない方は';
+          switchButton.textContent = '新規登録';
+        } else {
+          loginTab.className =
+            'flex-1 py-3 rounded-lg font-semibold transition-all bg-gray-700 text-gray-300 hover:bg-gray-600';
+          signupTab.className =
+            'flex-1 py-3 rounded-lg font-semibold transition-all bg-blue-600 text-white';
+          emailField.classList.remove('hidden');
+          submitText.textContent = '新規登録';
+          switchText.textContent = '既にアカウントをお持ちの方は';
+          switchButton.textContent = 'ログイン';
+        }
+      }
+
+      loginTab.addEventListener('click', () => {
+        if (!isLogin) toggleMode();
+      });
+
+      signupTab.addEventListener('click', () => {
+        if (isLogin) toggleMode();
+      });
+
+      switchButton.addEventListener('click', toggleMode);
+
+      document.getElementById('loginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        alert(isLogin ? 'ログイン処理（デモ）' : '新規登録処理（デモ）');
+      });
+    </script>
+  </body>
+</html>
