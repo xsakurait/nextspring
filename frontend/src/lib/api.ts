@@ -8,7 +8,10 @@ import type {
   Category,
 } from '@/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+const API_URL =
+  typeof window === 'undefined'
+    ? process.env.SERVER_API_URL || 'http://backend:8080/api'
+    : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -20,9 +23,11 @@ const api = axios.create({
 // リクエストインターセプター：JWTトークンを追加
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
@@ -35,7 +40,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (typeof window !== 'undefined' && error.response?.status === 401) {
       localStorage.removeItem('token');
       window.location.href = '/login';
     }

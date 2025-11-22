@@ -158,7 +158,7 @@ public class YouTubeServiceImpl implements YouTubeService {
         VideoContentDetails contentDetails = video.getContentDetails();
 
         LocalDateTime publishedAt = LocalDateTime.ofInstant(
-            snippet.getPublishedAt().toInstant(),
+            java.time.Instant.ofEpochMilli(snippet.getPublishedAt().getValue()),
             ZoneId.systemDefault()
         );
 

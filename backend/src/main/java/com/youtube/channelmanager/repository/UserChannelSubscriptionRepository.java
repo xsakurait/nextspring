@@ -17,6 +17,8 @@ public interface UserChannelSubscriptionRepository extends JpaRepository<UserCha
 
     Optional<UserChannelSubscription> findByUserIdAndChannelId(Long userId, Long channelId);
 
+    void deleteByUserIdAndChannelId(Long userId, Long channelId);
+
     @Query("SELECT ucs FROM UserChannelSubscription ucs " +
            "JOIN FETCH ucs.channel " +
            "WHERE ucs.userId = :userId")
